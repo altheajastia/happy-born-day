@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRANSMISSION // LATE NIGHT RELAY</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        theme: {
+                            bg: 'var(--bg-main)',
+                            panel: 'var(--bg-panel)',
+                            primary: 'var(--color-primary)',
+                            secondary: 'var(--color-secondary)',
+                            accent: 'var(--color-accent)',
+                            text: 'var(--color-text)',
+                            muted: 'var(--color-muted)'
+                        }
+                    },
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        rajdhani: ['Rajdhani', 'sans-serif'],
+                        tech: ['Share Tech Mono', 'monospace'],
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --bg-main: #07080c;
+            --bg-panel: rgba(13, 15, 23, 0.92);
+            --color-primary: #FCEE0A;
+            --color-secondary: #00F0FF;
+            --color-accent: #FF0055;
+            --color-text: #F0F4F8;
+            --color-muted: #64748B;
+            --glow-primary: rgba(252, 238, 10, 0.35);
+            --grid-color: rgba(252, 238, 10, 0.035);
+        }
+
+        [data-theme="cyan"] {
+            --bg-main: #040810;
+            --bg-panel: rgba(9, 18, 30, 0.92);
+            --color-primary: #00F0FF;
+            --color-secondary: #39FF14;
+            --color-accent: #FCEE0A;
+            --color-text: #E6FAFF;
+            --color-muted: #475569;
+            --glow-primary: rgba(0, 240, 255, 0.35);
+            --grid-color: rgba(0, 240, 255, 0.04);
+        }
+
+        [data-theme="crimson"] {
+            --bg-main: #0c0407;
+            --bg-panel: rgba(24, 10, 17, 0.92);
+            --color-primary: #FF0055;
+            --color-secondary: #FCEE0A;
+            --color-accent: #00F0FF;
+            --color-text: #FFE6EE;
+            --color-muted: #64748B;
+            --glow-primary: rgba(255, 0, 85, 0.35);
+            --grid-color: rgba(255, 0, 85, 0.04);
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--color-text);
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        .cyber-grid {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+        }
+
+        .crt-scanlines {
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.25) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+        }
+
+        .btn-glitch:hover {
+            box-shadow: 0 0 15px var(--glow-primary);
+            transform: translateY(-1px);
+        }
+
+        .clip-hud {
+            clip-path: polygon(
+                0 0, 
+                calc(100% - 16px) 0, 
+                100% 16px, 
+                100% 100%, 
+                16px 100%, 
+                0 calc(100% - 16px)
+            );
+        }
+
+        .clip-tag {
+            clip-path: polygon(
+                10px 0, 
+                100% 0, 
+                100% calc(100% - 10px), 
+                calc(100% - 10px) 100%, 
+                0 100%, 
+                0 10px
+            );
+        }
+
+        .glow-text {
+            text-shadow: 0 0 10px var(--glow-primary);
+        }
+
+        @keyframes shutterWipe {
+            0% { clip-path: polygon(0 0, 0 0, 0 100%, 0 100%); opacity: 1; background: var(--color-primary); }
+            40% { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); opacity: 0.95; background: var(--color-secondary); }
+            100% { clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%); opacity: 0; }
+        }
+
+        .shutter-flash {
+            position: absolute;
+            inset: 0;
+            z-index: 50;
+            pointer-events: none;
+            animation: shutterWipe 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes panelReveal {
+            0% { opacity: 0; transform: scale(0.97) translateY(12px); filter: brightness(2.2) contrast(1.4); }
+            50% { filter: brightness(1.4) contrast(1.15); }
+            100% { opacity: 1; transform: scale(1) translateY(0); filter: brightness(1) contrast(1); }
+        }
+
+        .animate-panel-reveal {
+            animation: panelReveal 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes pCascade {
+            0% { opacity: 0; transform: translateX(-14px) skewX(-5deg); border-left: 3px solid var(--color-primary); }
+            70% { transform: translateX(2px) skewX(0deg); }
+            100% { opacity: 1; transform: translateX(0) skewX(0deg); border-left: 3px solid transparent; }
+        }
+
+        .p-reveal {
+            animation: pCascade 0.35s ease-out forwards;
+        }
+
+        @keyframes textSnap {
+            0% { opacity: 0; transform: scale(1.12); filter: blur(6px); }
+            100% { opacity: 1; transform: scale(1); filter: blur(0); }
+        }
+
+        .animate-snap {
+            animation: textSnap 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.4); }
+        ::-webkit-scrollbar-thumb { background: var(--color-primary); border-radius: 2px; }
+
+        #fxCanvas {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 2;
+        }
+    </style>
+</head>
+<body data-theme="amber" class="min-h-screen relative flex flex-col justify-between selection:bg-yellow-400 selection:text-black">
+
+    <div class="cyber-grid fixed inset-0 pointer-events-none z-0"></div>
+    <div class="crt-scanlines fixed inset-0 pointer-events-none z-30"></div>
+    <canvas id="fxCanvas"></canvas>
+
+    <header class="relative z-40 border-b border-theme-primary/30 bg-black/80 backdrop-blur-md px-4 py-3">
+        <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+            
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 flex-shrink-0 text-theme-primary">
+                    <svg viewBox="0 0 100 100" fill="none" class="w-full h-full">
+                        <polygon points="50,5 95,28 95,72 50,95 5,72 5,28" stroke="currentColor" stroke-width="6" fill="rgba(252,238,10,0.08)"/>
+                        <circle cx="50" cy="50" r="18" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-orbitron font-bold text-sm sm:text-base tracking-widest text-theme-primary uppercase flex items-center gap-2">
+                        TRANSMISSION
+                        <span class="text-[10px] px-2 py-0.5 bg-theme-primary/10 border border-theme-primary/40 text-theme-primary font-tech tracking-normal">STATION // 04</span>
+                    </h1>
+                    <p class="text-xs text-theme-muted font-tech tracking-wider uppercase">
+                        RELAY ID: <span class="text-theme-secondary font-bold">NIGHT_CITY_LOCAL</span> | SIGNAL: <span id="signalState" class="text-theme-primary font-bold">ONLINE</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2 sm:space-x-3 font-tech text-xs">
+                
+                <button id="audioBtn" onclick="toggleAudio()" class="clip-tag bg-black/60 border border-theme-primary/40 hover:bg-theme-primary/20 px-3 py-1.5 text-theme-primary transition flex items-center gap-1.5" title="Toggle Subtle Sound Effects">
+                    <span id="audioIcon">🔇</span>
+                    <span id="audioText" class="hidden sm:inline tracking-wider">AUDIO: OFF</span>
+                </button>
+
+                <div class="flex items-center bg-black/60 border border-theme-primary/30 p-1 rounded space-x-1">
+                    <button onclick="setTheme('amber')" class="w-4 h-4 rounded-sm bg-[#FCEE0A] hover:scale-110 transition border border-black" title="Night City Amber"></button>
+                    <button onclick="setTheme('cyan')" class="w-4 h-4 rounded-sm bg-[#00F0FF] hover:scale-110 transition border border-black" title="Skyline Cyan"></button>
+                    <button onclick="setTheme('crimson')" class="w-4 h-4 rounded-sm bg-[#FF0055] hover:scale-110 transition border border-black" title="Crimson Dusk"></button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="relative z-10 flex-1 max-w-6xl w-full mx-auto p-4 md:p-6 flex flex-col lg:flex-row gap-6 items-stretch justify-center">
+
+        <aside class="w-full lg:w-72 flex-shrink-0 flex flex-col gap-4">
+            
+            <div class="clip-hud border border-theme-primary/40 bg-theme-panel p-4 shadow-lg relative overflow-hidden">
+                <div class="flex items-center justify-between border-b border-theme-primary/20 pb-2 mb-3">
+                    <span class="font-orbitron text-xs font-bold text-theme-primary tracking-widest flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-theme-primary animate-pulse"></span>
+                        SYSTEM // MONITOR
+                    </span>
+                    <span class="text-[10px] text-theme-secondary font-tech font-bold">STABLE</span>
+                </div>
+
+                <div class="space-y-2 mb-4">
+                    <div class="flex justify-between text-xs font-tech text-theme-muted">
+                        <span>FREQUENCY BAND</span>
+                        <span id="liveClock" class="text-theme-primary font-bold">00:00:00</span>
+                    </div>
+                    <div class="flex items-end gap-1 h-8 bg-black/50 p-1.5 border border-theme-primary/20 rounded">
+                        <div class="flex-1 bg-theme-primary/40 h-3 animate-pulse"></div>
+                        <div class="flex-1 bg-theme-primary/70 h-6"></div>
+                        <div class="flex-1 bg-theme-primary h-4"></div>
+                        <div class="flex-1 bg-theme-secondary h-7"></div>
+                        <div class="flex-1 bg-theme-primary h-5"></div>
+                        <div class="flex-1 bg-theme-primary/60 h-2"></div>
+                        <div class="flex-1 bg-theme-secondary h-6"></div>
+                        <div class="flex-1 bg-theme-primary/80 h-4"></div>
+                    </div>
+                </div>
+
+                <div class="space-y-2 text-xs font-tech">
+                    <div class="flex justify-between border-b border-black/40 pb-1">
+                        <span class="text-theme-muted">LOCATION:</span>
+                        <span class="text-theme-text font-bold">NIGHT CITY // 04</span>
+                    </div>
+                    <div class="flex justify-between border-b border-black/40 pb-1">
+                        <span class="text-theme-muted">ENCRYPTION:</span>
+                        <span class="text-theme-primary font-bold">DIRECT LINK</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-theme-muted">ATMOSPHERE:</span>
+                        <span class="text-theme-secondary font-bold">LATE NIGHT</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hidden lg:flex flex-col flex-1 clip-hud border border-theme-primary/20 bg-theme-panel p-4 text-xs font-tech text-theme-muted overflow-hidden">
+                <div class="font-orbitron text-xs text-theme-primary border-b border-theme-primary/20 pb-2 mb-2 flex justify-between">
+                    <span>// NOTES</span>
+                    <span class="text-[10px] text-theme-secondary">MEM_01</span>
+                </div>
+                <div class="flex-1 space-y-2 font-mono text-[11px] leading-relaxed text-theme-muted/90">
+                    <p>"In a city moving at a million miles an hour, taking a minute to say something real is what actually matters."</p>
+                    <p class="text-theme-primary/60 pt-2 border-t border-black/40">// Direct peer transmission active.</p>
+                </div>
+            </div>
+        </aside>
+
+        <section class="flex-1 flex flex-col min-w-0">
+            <div id="mainPanel" class="clip-hud flex-1 border-2 border-theme-primary/50 bg-theme-panel p-5 md:p-8 flex flex-col justify-between shadow-2xl relative">
+                
+                <div id="shutterFx" class="hidden"></div>
+
+                <div class="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-theme-primary pointer-events-none"></div>
+                <div class="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-theme-primary pointer-events-none"></div>
+                <div class="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-theme-primary pointer-events-none"></div>
+                <div class="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-theme-primary pointer-events-none"></div>
+
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-theme-primary/20 pb-3 mb-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-theme-accent"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-theme-primary"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-theme-secondary"></span>
+                        <span id="displaySubjectTitle" class="text-xs font-tech text-theme-muted ml-2 uppercase tracking-wider font-bold">
+                            PERSONAL MESSAGE // INCOMING
+                        </span>
+                    </div>
+                    <div id="statusBadge" class="px-2 py-0.5 bg-theme-primary/10 border border-theme-primary/40 text-theme-primary text-xs font-tech font-bold rounded uppercase tracking-widest">
+                        STATUS: READY
+                    </div>
+                </div>
+
+                <div id="lockedState" class="my-auto py-10 flex flex-col items-center justify-center text-center space-y-6">
+                    
+                    <div class="relative cursor-pointer group" onclick="unlockTransmission()">
+                        <div class="w-24 h-24 rounded-full border border-dashed border-theme-primary/60 animate-spin-slow flex items-center justify-center"></div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-16 h-16 rounded-full bg-theme-primary/10 border border-theme-primary flex items-center justify-center group-hover:scale-110 transition duration-300">
+                                <svg class="w-7 h-7 text-theme-primary glow-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="max-w-md space-y-2">
+                        <h2 class="font-orbitron font-bold text-2xl text-theme-primary tracking-wider glow-text">
+                            DIRECT TRANSMISSION
+                        </h2>
+                        <p class="text-xs md:text-sm text-theme-muted font-tech leading-relaxed">
+                            A personal message has arrived for you. Click below to open and read.
+                        </p>
+                    </div>
+
+                    <button onclick="unlockTransmission()" class="btn-glitch clip-tag relative bg-theme-primary hover:bg-yellow-300 text-black px-7 py-3 font-orbitron font-bold text-sm tracking-widest transition shadow-lg flex items-center gap-2">
+                        <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <span>OPEN MESSAGE</span>
+                    </button>
+                </div>
+
+                <div id="unlockedState" class="hidden flex-1 flex flex-col justify-between space-y-4">
+                    
+                    <div class="border-b border-theme-primary/20 pb-3 space-y-1">
+                        <div class="flex flex-wrap justify-between text-xs font-tech text-theme-muted">
+                            <div>DATE: <span id="timestampVal" class="text-theme-secondary font-bold">LATE NIGHT // LOCAL TIME</span></div>
+                            <div>SIGNAL: <span class="text-theme-primary font-bold">DIRECT LINK</span></div>
+                        </div>
+                        <div id="headerToWrapper" class="font-orbitron text-lg md:text-xl font-bold text-theme-primary flex items-center gap-2">
+                            <span>TO:</span>
+                            <span id="displayTo" class="text-theme-secondary">MY FRIEND</span>
+                        </div>
+                    </div>
+
+                    <div id="letterBody" class="flex-1 bg-black/40 border border-theme-primary/20 rounded-sm p-4 md:p-6 overflow-y-auto max-h-[50vh] font-sans text-sm md:text-base leading-relaxed text-theme-text space-y-4">
+                    </div>
+
+                    <div class="border-t border-theme-primary/20 pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div id="footerFromWrapper">
+                            <span class="text-xs text-theme-muted font-tech block">// TRANSMISSION FROM:</span>
+                            <span id="displayFrom" class="font-orbitron font-bold text-theme-primary text-base md:text-lg glow-text">
+                                YOUR FRIEND
+                            </span>
+                        </div>
+
+                        <div class="flex flex-wrap gap-2 text-xs font-tech">
+                            <button id="skipBtn" onclick="skipTypewriter()" class="px-3 py-1.5 border border-theme-primary/40 bg-black/50 hover:bg-theme-primary/20 text-theme-primary rounded-sm transition">
+                                ⚡ <span>SHOW ALL</span>
+                            </button>
+                            <button onclick="unlockTransmission()" class="px-3 py-1.5 border border-theme-secondary/40 bg-black/50 hover:bg-theme-secondary/20 text-theme-secondary rounded-sm transition">
+                                🔄 <span>REPLAY</span>
+                            </button>
+                            <button onclick="copyLetterText()" class="px-3 py-1.5 border border-theme-primary/40 bg-black/50 hover:bg-theme-primary/20 text-theme-primary rounded-sm transition">
+                                📋 <span>COPY TEXT</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="relative z-30 border-t border-theme-primary/20 bg-black/80 backdrop-blur-md py-3 px-4 text-xs font-tech text-theme-muted flex flex-col sm:flex-row items-center justify-between gap-2 max-w-6xl mx-auto w-full">
+        <div>
+            NIGHT CITY RELAY // PERSONAL TRANSMISSION MODULE
+        </div>
+        <div class="text-theme-primary font-bold tracking-widest uppercase">
+            SIGNAL: SECURE
+        </div>
+    </footer>
+
+    <div id="toast" class="fixed bottom-12 right-6 z-50 clip-tag bg-black/95 border border-theme-primary p-3 text-theme-primary font-tech text-xs shadow-2xl transition-all duration-300 transform translate-y-20 opacity-0 pointer-events-none flex items-center space-x-2">
+        <span id="toastIcon">⚡</span>
+        <span id="toastMsg">Notification</span>
+    </div>
+
+    <script>
+        const currentConfig = {
+            to: "Drew",
+            from: "Thea",
+            title: "HAPPY 20TH // LATE NIGHT SIGNAL",
+            theme: "amber",
+            msg: `Happiest 20th!! by god u unc asf dawg onsn... dw i'll unc w you soon just not now :p js dont die from rabies or salmonella yet
+
+I really appreciate and am very grateful that you were one of the people who stuck with me through out senior high, with my nature it was really hard to find someone to talk to but I was fortunately blessed with you guys who I shared the same interests with... maybe much more freakier but I still love you guys no homo.
+
+Hoping we stay cosplaying and conning til god knows when, my cosduo buddy (if u srs in mamao and jinshi hmu fr) without you I'd probably would've stayed in my own little bubble all alone in the community and wouldn't be able to meet the amazing digital circus yona and yeppi, thank you for that yeaaaa
+
+May this friendship stay strong and tuff asf, more birthdays + galas to come yup, sorry kung lowk corny yung theme ng letter mo I legit needa lock in on edgerunners i just scavanged and thought of this on the spot yiik... anyways, Harinawa'y pagpalain ka ng Poong Maykapal Na bigyan ka pa niya ng maraming kaarawan Liligaya ka sa buong buhay Happy birthday to you!`
+        };
+
+        let isAudioOn = false;
+        let audioCtx = null;
+        let typewriterTimer = null;
+
+        function updateDisplayElements() {
+            document.getElementById('displayTo').innerText = currentConfig.to.toUpperCase();
+            document.getElementById('displayFrom').innerText = currentConfig.from.toUpperCase();
+            document.getElementById('displaySubjectTitle').innerText = currentConfig.title.toUpperCase();
+        }
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function toggleAudio() {
+            initAudio();
+            isAudioOn = !isAudioOn;
+            const btn = document.getElementById('audioBtn');
+            const icon = document.getElementById('audioIcon');
+            const text = document.getElementById('audioText');
+
+            if (isAudioOn) {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                icon.innerText = "🔊";
+                text.innerText = "AUDIO: ON";
+                btn.classList.add('bg-theme-primary/20');
+                playSynthTone(750, 'sine', 0.05);
+                showToast("🔊 Subtle Sound Activated");
+            } else {
+                icon.innerText = "🔇";
+                text.innerText = "AUDIO: OFF";
+                btn.classList.remove('bg-theme-primary/20');
+                showToast("🔇 Audio Muted");
+            }
+        }
+
+        function playSynthTone(freq = 440, type = 'sine', duration = 0.05) {
+            if (!isAudioOn || !audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.02, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        function setTheme(themeName, notify = true) {
+            document.body.setAttribute('data-theme', themeName);
+            currentConfig.theme = themeName;
+            playSynthTone(600, 'sine', 0.04);
+            if (notify) showToast(`🎨 Theme: ${themeName.toUpperCase()}`);
+        }
+
+        function unlockTransmission() {
+            playSynthTone(700, 'sine', 0.06);
+            setTimeout(() => playSynthTone(1050, 'sine', 0.08), 60);
+
+            const shutter = document.getElementById('shutterFx');
+            shutter.className = "shutter-flash";
+            setTimeout(() => { shutter.className = "hidden"; }, 420);
+
+            const locked = document.getElementById('lockedState');
+            const unlocked = document.getElementById('unlockedState');
+
+            locked.classList.add('hidden');
+            unlocked.classList.remove('hidden');
+
+            unlocked.classList.remove('animate-panel-reveal');
+            void unlocked.offsetWidth;
+            unlocked.classList.add('animate-panel-reveal');
+
+            const headerTo = document.getElementById('headerToWrapper');
+            const footerFrom = document.getElementById('footerFromWrapper');
+
+            headerTo.classList.remove('animate-snap');
+            footerFrom.classList.remove('animate-snap');
+            void headerTo.offsetWidth;
+            headerTo.classList.add('animate-snap');
+            footerFrom.classList.add('animate-snap');
+
+            const statusBadge = document.getElementById('statusBadge');
+            statusBadge.innerText = "STATUS: ACTIVE";
+            statusBadge.className = "px-2 py-0.5 bg-theme-secondary/20 border border-theme-secondary text-theme-secondary text-xs font-tech font-bold rounded uppercase tracking-widest";
+
+            updateDisplayElements();
+            startScrambleTypewriter();
+        }
+
+        function startScrambleTypewriter() {
+            if (typewriterTimer) clearInterval(typewriterTimer);
+            const container = document.getElementById('letterBody');
+            container.innerHTML = '';
+
+            const paragraphs = currentConfig.msg.split('\n');
+            let pIdx = 0;
+
+            function renderParagraph() {
+                if (pIdx >= paragraphs.length) return;
+                const text = paragraphs[pIdx];
+                const p = document.createElement('p');
+                p.className = "min-h-[1em] p-reveal pl-2 border-l-2 border-theme-primary/80";
+                container.appendChild(p);
+
+                if (!text.trim()) {
+                    p.style.borderLeft = "none";
+                    pIdx++;
+                    setTimeout(renderParagraph, 40);
+                    return;
+                }
+
+                let len = 0;
+                typewriterTimer = setInterval(() => {
+                    playSynthTone(320 + Math.random() * 280, 'sine', 0.015);
+                    len += 2;
+                    if (len > text.length) len = text.length;
+
+                    p.innerText = text.substring(0, len);
+
+                    if (len >= text.length) {
+                        clearInterval(typewriterTimer);
+                        setTimeout(() => {
+                            p.style.borderLeft = "2px solid transparent";
+                        }, 250);
+                        pIdx++;
+                        setTimeout(renderParagraph, 70);
+                    }
+                    container.scrollTop = container.scrollHeight;
+                }, 18);
+            }
+
+            renderParagraph();
+        }
+
+        function skipTypewriter() {
+            if (typewriterTimer) clearInterval(typewriterTimer);
+            const container = document.getElementById('letterBody');
+            container.innerHTML = '';
+            const paragraphs = currentConfig.msg.split('\n');
+            paragraphs.forEach((pText, idx) => {
+                const p = document.createElement('p');
+                p.className = "p-reveal pl-2 border-l-2 border-transparent";
+                p.style.animationDelay = `${idx * 0.05}s`;
+                p.innerText = pText;
+                container.appendChild(p);
+            });
+            showToast("⚡ Full Text Unveiled");
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        function copyLetterText() {
+            const fullText = `TO: ${currentConfig.to}\n\n${currentConfig.msg}\n\nFROM: ${currentConfig.from}`;
+            const temp = document.createElement('textarea');
+            temp.value = fullText;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            document.body.removeChild(temp);
+            showToast("📋 Letter text copied!");
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toTimeString().split(' ')[0];
+            document.getElementById('liveClock').innerText = timeStr;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        const canvas = document.getElementById('fxCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.8;
+                this.speedY = (Math.random() - 0.5) * 0.8;
+                this.alpha = Math.random() * 0.4 + 0.1;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+            }
+            draw() {
+                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--color-primary').trim() || '#FCEE0A';
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 30; i++) particles.push(new Particle());
+
+        function renderCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(renderCanvas);
+        }
+
+        window.onload = function() {
+            updateDisplayElements();
+            renderCanvas();
+        };
+    </script>
+</body>
+</html>
