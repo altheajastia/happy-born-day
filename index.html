@@ -280,8 +280,8 @@
                     <span class="text-[10px] text-theme-secondary">MEM_01</span>
                 </div>
                 <div class="flex-1 space-y-2 font-mono text-[11px] leading-relaxed text-theme-muted/90">
-                    <p>// YEAAAAAAAAAAAAAH STAR CITY</p>
-                    <p class="text-theme-primary/60 pt-2 border-t border-black/40">// YEAAAAAAAAAAH SHAKEYS</p>
+                    <p>// YEAAAAAAAAAAAAAAAH STAR CITY</p>
+                    <p class="text-theme-primary/60 pt-2 border-t border-black/40">// YEAAAAAAAAAAAAAAAH SHAKEYS</p>
                 </div>
             </div>
         </aside>
@@ -410,6 +410,10 @@ Hoping we stay cosplaying and conning til god knows when, my cosduo buddy (if u 
 May this friendship stay strong and tuff asf, more birthdays + galas to come yup, sorry kung lowk corny yung theme ng letter mo I legit needa lock in on edgerunners i just scavanged and thought of this on the spot yiik... anyways, Harinawa'y pagpalain ka ng Poong Maykapal Na bigyan ka pa niya ng maraming kaarawan Liligaya ka sa buong buhay Happy birthday to you!`
         };
 
+        const AUDIO_SRC = 'bgm.mp3';
+        let bgmAudio = new Audio(AUDIO_SRC);
+        bgmAudio.loop = true;
+
         let isAudioOn = false;
         let audioCtx = null;
         let typewriterTimer = null;
@@ -438,12 +442,14 @@ May this friendship stay strong and tuff asf, more birthdays + galas to come yup
                 icon.innerText = "🔊";
                 text.innerText = "AUDIO: ON";
                 btn.classList.add('bg-theme-primary/20');
+                bgmAudio.play().catch(e => {});
                 playSynthTone(750, 'sine', 0.05);
-                showToast("🔊 Subtle Sound Activated");
+                showToast("🔊 Audio Activated");
             } else {
                 icon.innerText = "🔇";
                 text.innerText = "AUDIO: OFF";
                 btn.classList.remove('bg-theme-primary/20');
+                bgmAudio.pause();
                 showToast("🔇 Audio Muted");
             }
         }
@@ -472,6 +478,12 @@ May this friendship stay strong and tuff asf, more birthdays + galas to come yup
         }
 
         function unlockTransmission() {
+            if (!isAudioOn) {
+                toggleAudio();
+            } else {
+                bgmAudio.play().catch(e => {});
+            }
+
             playSynthTone(700, 'sine', 0.06);
             setTimeout(() => playSynthTone(1050, 'sine', 0.08), 60);
 
